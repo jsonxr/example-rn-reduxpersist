@@ -8,7 +8,6 @@ npx react-native init rndemo --template react-native-template-typescript
 
 ## 2) Configure prettier/eslint
 
-
 `.eslintrc.js`
 ```js
 module.exports = {
@@ -47,4 +46,25 @@ module.exports = {
   "eslint.format.enable": true,
   "editor.tabSize": 2
 }
+```
+
+## 3) React Router
+
+```sh
+npm i react-router-native
+npm i -D @types/react-router-native
+```
+
+```js
+import { NativeRouter as Router, Switch, Route } from 'react-router-native'
+
+const App = () => (
+  <Router>
+    <Switch>
+      <Route exact path="/" component={Home} />
+    </Switch>
+  </Router>
+)
+
+export default App
 ```
