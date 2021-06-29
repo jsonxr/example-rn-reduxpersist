@@ -68,3 +68,14 @@ const App = () => (
 
 export default App
 ```
+
+## 4) Redux offline
+
+```sh
+npm i @reduxjs/toolkit react-redux redux-persist @redux-offline/redux-offline redux-persist-transform-encrypt @react-native-async-storage/async-storage
+```
+
+`src/app/store.js`
+```js
+
+```
