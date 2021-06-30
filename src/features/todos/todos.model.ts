@@ -1,14 +1,16 @@
 import uuid from 'react-native-uuid'
 
-export type Todo = { key: string; title: string }
-export type TodoOptions = Omit<Partial<Todo>, 'key'>
+export type TodoSummary = { id: string; title: string }
+export type TodoDetail = TodoSummary & { notes?: string }
+
+export type TodoOptions = Omit<Partial<TodoSummary>, 'key'>
 
 export const createTodo = ({ title, ...props }: TodoOptions = {}) => {
   const key = uuid.v4().toString()
 
   return {
-    key,
+    id: key,
     title: title ?? `Unknown ${key}`,
     ...props,
-  } as Todo
+  } as TodoSummary
 }

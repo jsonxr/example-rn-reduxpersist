@@ -2,12 +2,13 @@
 import React from 'react'
 import { SafeAreaView } from 'react-native'
 import { NativeRouter as Router, Switch, Route } from 'react-router-native'
-
-import Home from './screens/Home'
-import Todos from './features/todos/Todos'
 import { Provider } from 'react-redux'
 import { store, persistor } from './app/store'
 import { PersistGate } from 'redux-persist/integration/react'
+
+import Home from './screens/Home'
+import Todos from './features/todos/Todos'
+import Todo from './features/todos/Todo'
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
             <Switch>
               <Route exact path="/" component={Home} />
               <Route exact path="/todos" component={Todos} />
+              <Route exact path="/todos/:id" component={Todo} />
             </Switch>
           </Router>
         </SafeAreaView>

@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
-import { Todo } from './todos.model'
+import { TodoDetail, TodoSummary } from './todos.model'
 import { selectors, actions } from './todos.slice'
 
 export const useTodos = () => {
@@ -16,7 +16,7 @@ export const useTodos = () => {
   )
 
   const add = useCallback(
-    (todo: Todo) => {
+    (todo: TodoSummary) => {
       dispatch(actions.loading('pending'))
       dispatch(actions.addOne(todo))
       dispatch(actions.loading('idle'))
@@ -24,24 +24,32 @@ export const useTodos = () => {
     [dispatch]
   )
 
+  const update = useCallback(
+    (id: string, changes: Partial<TodoSummary>) => {
+      dispatch(actions.updateOne({ id, changes }))
+    },
+    [dispatch]
+  )
+
   return {
     useSelectAll: () => useAppSelector(selectors.selectAll),
-    useSelectIds: () => useAppSelector(selectors.selectIds),
     useSelectById: (id: string) => useAppSelector(selectors.selectById(id)),
     remove,
     add,
+    update,
   }
 }
 
 export const useTodo = (key: string) => {
   const dispatch = useAppDispatch()
+
   const todo = useAppSelector(selectors.selectById(key))
   if (!todo) {
     throw new Error(`Todo[${key}] does not exist.`)
   }
 
   const update = useCallback(
-    (id: string, changes: Partial<Todo>) => {
+    (id: string, changes: Partial<TodoDetail>) => {
       dispatch(actions.updateOne({ id, changes }))
     },
     [dispatch]
@@ -56,7 +64,7 @@ export const useTodo = (key: string) => {
 
   return {
     todo,
-    update: (changes: Partial<Todo>) => update(todo.key, changes),
-    remove: () => remove(todo.key),
+    update: (changes: Partial<TodoDetail>) => update(todo.id, changes),
+    remove: () => remove(todo.id),
   }
 }

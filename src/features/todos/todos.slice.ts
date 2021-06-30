@@ -1,19 +1,25 @@
-import { createSelector, createEntityAdapter, createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
+import { createSelector, createEntityAdapter, createSlice, EntityState, PayloadAction, Update } from '@reduxjs/toolkit'
 import { AppState } from '../../app/store'
-import { Todo } from './todos.model'
+import { TodoDetail, TodoSummary } from './todos.model'
 import createMigrations from '../../app/createMigrations'
 
-const adapter = createEntityAdapter<Todo>({
-  selectId: (t) => t.key,
+const summaryAdapter = createEntityAdapter<TodoSummary>({
+  selectId: (t) => t.id,
   // Keep the "all IDs" array sorted based on book titles
 })
+const detailAdapter = createEntityAdapter<TodoDetail>({
+  selectId: (t) => t.id,
+})
 
-export type State = EntityState<Todo> & {
+export type State = {
   loading?: 'idle' | 'pending'
+  summary: EntityState<TodoSummary>
+  detail: EntityState<TodoDetail>
 }
 const initialState: State = {
   loading: 'idle',
-  ...adapter.getInitialState(),
+  summary: summaryAdapter.getInitialState(),
+  detail: detailAdapter.getInitialState(),
 }
 
 export const name = 'todo'
@@ -26,12 +32,24 @@ export const slice = createSlice({
     loading(state, action: PayloadAction<'idle' | 'pending'>) {
       state.loading = action.payload
     },
-    addOne: adapter.addOne,
-    updateOne: adapter.updateOne,
-    removeOne: adapter.removeOne,
-    setAll(state, action: PayloadAction<Todo[]>) {
+    addOne(state, action: PayloadAction<TodoDetail>) {
+      summaryAdapter.addOne(state.summary, action.payload)
+      detailAdapter.addOne(state.detail, action.payload)
+    },
+    updateOne(state, action: PayloadAction<Update<TodoDetail>>) {
+      summaryAdapter.updateOne(state.summary, action.payload)
+      detailAdapter.updateOne(state.detail, action.payload)
+    },
+
+    removeOne(state, action: PayloadAction<string>) {
+      summaryAdapter.removeOne(state.summary, action.payload)
+      detailAdapter.removeOne(state.detail, action.payload)
+    },
+
+    setAll(state, action: PayloadAction<TodoSummary[]>) {
       // Or, call them as "mutating" helpers in a case reducer
-      adapter.setAll(state, action.payload)
+      summaryAdapter.setAll(state.summary, action.payload)
+      detailAdapter.setAll(state.detail, action.payload)
     },
   },
 })
@@ -45,14 +63,19 @@ export const actions = {
 // Selectors
 //------------------------------------------------------------------------------
 const rootSelector = (state: AppState) => state.todo
-const booksSelectors = adapter.getSelectors<AppState>(rootSelector)
+const summarySelector = createSelector(rootSelector, (state) => state.summary)
+const detailSelector = createSelector(rootSelector, (state) => state.detail)
+
+const summarySelectors = summaryAdapter.getSelectors<AppState>(summarySelector)
+const detailSelectors = detailAdapter.getSelectors<AppState>(detailSelector)
+
 const loading = createSelector(rootSelector, (state) => state.loading)
 
 export const selectors = {
   loading,
-  selectAll: booksSelectors.selectAll,
-  selectIds: booksSelectors.selectIds,
-  selectById: (id: string) => (state: AppState) => booksSelectors.selectById(state, id),
+  selectAll: summarySelectors.selectAll,
+  selectIds: summarySelectors.selectIds,
+  selectById: (id: string) => (state: AppState) => detailSelectors.selectById(state, id),
 }
 
 //------------------------------------------------------------------------------
